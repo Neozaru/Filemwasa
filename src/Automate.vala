@@ -1,11 +1,9 @@
 public abstract class Automate {
 
 	protected List<Etat> _etats;
-	//protected HashMap<string, int> _maa;
 	
 	public List<Etat> etats {
 		get { return this._etats; }
-		//protected set { ajouter_etat( Etat ); }
 	}
 
 	Etat current_state {
@@ -17,25 +15,67 @@ public abstract class Automate {
 	public void on_garde( string garde ) {
 
 		foreach( Transition trans in current_state.transitions ) {
+			if ( trans.garde == garde ) {
+				this.current_state = trans.etat_cible;
+				return;
+			}
+		}
+
+	}
+
+	/* Dans notre cas, "on_garde" sera appele quand un message sera envoye/recu */
+	public bool check_garde( string garde ) {
+
+		foreach( Transition trans in current_state.transitions ) {
 
 			if ( trans.garde == garde ) {
-				this.change_state(trans);
-				return;
+				return true;
 			}
 
 		}
 
+		return false;
+
 	}
 
-	/* Peut etre appele manuellement, ou par "on_garde" */
-	public void change_state( Transition trans ) {
 
-		if ( trans.etat_source == current_state ) {
-			current_state = trans.etat_source;
+	public void on_command( string[] cmd ) {
+
+		if ( cmd.length > 0 ) {
+			if ( this.check_garde(cmd[0]) ) {
+
+				if ( cmd[0][0] == '!' ) {
+						string msg = cmd[0].replace("!","");
+						send_message(msg);
+						this.on_garde(cmd[0]);
+					
+				}
+				else if ( cmd[0][0] == '?' ) {
+					string msg = cmd[0].replace("?","");
+					print("Waiting for message '"+msg+"'");
+					if ( recv_message() == msg ) {
+						this.on_garde(cmd[0]);
+					}
+				}
+			}
+			else {
+				print("Unsupported action for current state\n");
+			}
+
 		}
 
+
 	}
 
+
+	public abstract void init();
+
+	public void first_state() {
+
+		if ( _etats.length() > 0 ) {
+			this.current_state = _etats.nth_data(0);
+		}
+	}
 
 	/* Voir s'il y a un système de surchage d'operateur 
 	en Vala (à l'image d'un toString / operator<<) */

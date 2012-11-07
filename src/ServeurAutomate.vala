@@ -1,3 +1,6 @@
+extern int wait_for_client(int port);
+
+
 public class ServeurAutomate : Automate {
 
 	public ServeurAutomate() {
@@ -9,12 +12,12 @@ public class ServeurAutomate : Automate {
 		Etat s2 = new Etat("s2 - Ready");
 		Etat s3 = new Etat("s3 - Waiting data ack");
 
-		Transition t01 = new Transition(s0,s1,"","t01 - Receive hello");
-		Transition t10 = new Transition(s1,s0,"","t10 - Accept Abort transaction");
-		Transition t12 = new Transition(s1,s2,"","t12 - Send handshake ack");
-		Transition t23 = new Transition(s2,s3,"","t23 - Receive data");
-		Transition t32 = new Transition(s3,s2,"","t32 - Send data ack");
-		Transition t30 = new Transition(s3,s0,"","t30 - Accept Finish transaction");
+		Transition t01 = new Transition(s0,s1,"?begin","t01 - Receive hello");
+		Transition t10 = new Transition(s1,s0,"!reject","t10 - Accept Abort transaction");
+		Transition t12 = new Transition(s1,s2,"!ack","t12 - Send handshake ack");
+		Transition t23 = new Transition(s2,s3,"?data","t23 - Receive data");
+		Transition t32 = new Transition(s3,s2,"!dack","t32 - Send data ack");
+		Transition t30 = new Transition(s3,s0,"?end","t30 - Accept Finish transaction");
 
 
 		s0.ajouter_transition( t01 );
@@ -31,7 +34,23 @@ public class ServeurAutomate : Automate {
 		this._etats.append( s3 );
 
 
+		this.first_state();
+		
 	}
+
+	public override void init() {
+		print("Waiting for client request\n");
+		wait_for_client(9009);
+
+	}
+
+	public void wait_message() {
+		string message = recv_message();
+		print("Received : "+message);
+
+	}
+
+
 
 	~ServeurAutomate() {
 
