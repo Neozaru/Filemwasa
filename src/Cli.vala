@@ -1,14 +1,11 @@
+extern void init_network();
 extern int send_message(string message);
 extern string recv_message();
+extern void exit_program( int code );
+
 
 public class Cli {
     
-
-  //delegate int Command_Function( string[] args );
-  //public struct
-
-
-
   private Automate _automate;
   private bool _running;
 
@@ -25,7 +22,8 @@ public class Cli {
         }
       }
     }
-    return input.str;
+
+    return input.str.replace("\n","");
 
   }
 
@@ -54,7 +52,8 @@ public class Cli {
     print("> ");
     string str = read_stdin(true);
     if ( str.length > 0 ) {
-      return str.strip().split(" ");
+      string[] cmd = str.split(" ");
+      return cmd;
     }
     else {
       return new string[0];
@@ -67,20 +66,21 @@ public class Cli {
 
     string[] cmd = get_cmd();
 
-
-
     if ( cmd.length > 0 ) {
 
-      print("Command "+cmd[0]+"\n");
-
         if ( cmd[0] == "exit" ) {
-          this.exit(cmd);
+          exit_program(0);
+        }
+        else if ( cmd[0] == "info" ) {
+          _automate.print_current_state();
         }
         else if ( cmd[0] == "help" ) {
-          print("exit : Exit the programm\n");
+          print("--------------------------------\n");
+          print("exit : Exits the program\n");
           print("info : Prints info about Automate\n");
           print("!<message> : Send a message\n");
-          print("?<message> : Receive a message\n");
+          print("? : Receive a message\n");
+          print("--------------------------------\n");
           
         }
         else {
@@ -92,20 +92,9 @@ public class Cli {
     return 0;
   }
 
-
-  public int exit( string[] cmd ) {
-      _running = false;
-      print("Exiting ...\n");
-      return 0;
-  }
-
-
-
   ~Cli() {
 
   }
-
-
 
 
 } 

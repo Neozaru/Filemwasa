@@ -10,18 +10,16 @@ public class Launcher {
 
 		if ( args.length > 1 ) {
 
+			init_network();
+
 			if ( args[1] == "client" ) {
 				ClientAutomate ca = new ClientAutomate();
 				
-				ca.debug();
-
 				Cli c = new Cli(ca);	
 				c.start();
 			}
 			else if ( args[1] == "server" ) {
 				ServeurAutomate sa = new ServeurAutomate();
-
-				sa.debug();
 
 				Cli s = new Cli(sa);
 				s.start();

@@ -1,5 +1,10 @@
 
 	#include <stdio.h>
+	#include <string.h>
+	#include <stdlib.h>
+
+	#include <signal.h>
+
 
 	#ifdef WIN32
 
@@ -34,7 +39,11 @@
 
 	#endif
 
+
+
 	SOCKET g_sock = INVALID_SOCKET;
+
+
 
 int send_message( char* message ) {
 
@@ -53,8 +62,6 @@ int send_message( char* message ) {
 		return -1;
 
 	}
-
-	printf("SEND : '%s'\n", message);
 
 	return 0;
 
@@ -81,9 +88,6 @@ char* recv_message() {
 	}
 
 	char* message = strdup(buffer);
-
-	printf("RECV : %d bytes\n",len);
-	printf("RECV : '%s'\n", message);
 			
 	return message;
 }
@@ -131,8 +135,6 @@ int wait_for_client(int port) {
 
 	}
 
-	printf("Incoming connection (with socket %d of %d:%d\n", sock_in, inet_ntoa(client_address.sin_addr), htons(client_address.sin_port));
-
 	g_sock = sock_in;
 
 	return 0;
@@ -169,10 +171,50 @@ int connect_to_server( const char* server_name, int port ) {
 
 	}
 
-	printf("Connection established ! \n");
-
 	g_sock = sock;
 
 	return 0;
 	
 }
+
+void exit_program( int code ) {
+
+	if ( g_sock != INVALID_SOCKET ) {
+		closesocket(g_sock);
+	}
+
+	printf("Exiting program... \n");
+	exit(code);
+}
+
+void onSigTerm( int sig ) {
+	exit_program(9);
+}
+
+#if defined (linux)
+
+	struct sigaction act;
+
+#endif
+	
+void init_network() {
+
+	// pour envoyuer un paquet de deconnexion en cas de fermeture
+	
+	#ifdef WIN32
+		signal( SIGINT, onSigTerm);
+		signal( SIGTERM, onSigTerm);
+	#elif defined (linux)
+
+		act.sa_flags = SA_SIGINFO;
+		act.sa_handler = onSigTerm;      /* fonction à lancer */
+
+		sigemptyset(&act.sa_mask);        /* rien à masquer */
+
+		sigaction(SIGINT, &act, NULL);    /* fin contrôle-C */
+		sigaction(SIGTERM, &act, NULL);   /* arrêt */
+	#endif
+
+}
+
+
