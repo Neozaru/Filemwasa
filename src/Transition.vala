@@ -1,3 +1,4 @@
+
 public class Transition {
 
 	public string label;
@@ -23,6 +24,7 @@ public class Transition {
 		this.etat_cible = cible;
 		this.garde = garde;
 	}
+
 
 	~Transition() {
 		

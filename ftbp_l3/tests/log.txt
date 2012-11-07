@@ -1,0 +1,2 @@
+gcc -c src/nq_utils.c -o obj/nq_utils.o -W -v -Wall -g -DNQ_DEBUG_MESSAGES  
+gcc -c src/network.c  -o obj/network.o -W -v -Wall -g -DNQ_DEBUG_MESSAGES  
