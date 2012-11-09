@@ -35,7 +35,6 @@ public abstract class Automate {
 				return true;
 			}
 
-
 		}
 
 		return false;
@@ -45,7 +44,7 @@ public abstract class Automate {
 	public void print_current_state() {
 
 		print("# Current state : '"+current_state.label+"'\n");
-		print("# Transitions : \n");
+		print("# Available transitions ([commands]) : \n");
 		foreach( Transition trans in current_state.transitions ) {
 			print("### "+trans.label+" ["+trans.garde+"]\n");
 		}
@@ -90,7 +89,7 @@ public abstract class Automate {
 			else if ( cmd[0][0] == '?' ) {
 
 				if ( !should_receive() ) {
-					print("Shouldn't receive anything now\n");
+					print("Shouldn't receive anything now (message queue is empty)\n");
 					return;
 				}
 

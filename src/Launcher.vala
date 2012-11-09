@@ -17,18 +17,20 @@ public class Launcher {
 				
 				Cli c = new Cli(ca);	
 				c.start();
+
+				return 0;
 			}
 			else if ( args[1] == "server" ) {
 				ServeurAutomate sa = new ServeurAutomate();
 
 				Cli s = new Cli(sa);
 				s.start();
+
+				return 0;
 			}
 		}
-		else {
-			print("Usage : %s client|server\n",args[0]);
-		}
 
+		print("Usage : %s client|server\n",args[0]);
 
 
 		return 0;

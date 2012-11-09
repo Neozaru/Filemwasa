@@ -5,6 +5,7 @@
 
 	#include <signal.h>
 
+	#include <sys/queue.h>
 
 	#ifdef WIN32
 
@@ -44,6 +45,19 @@
 	SOCKET g_sock = INVALID_SOCKET;
 
 
+typedef struct Msg_Queue {
+    /* ici on met nos elements par exemple : */
+    char* str;
+
+    /*
+     * On déclare notre liste avec SLIST_ENTRY qui est equivalente à
+     * struct { struct MaStruct *sle_next; } next;
+     */
+
+    TAILQ_ENTRY(Msg_Queue) next;
+} Msg_Queue;
+
+TAILQ_HEAD(, Msg_Queue) g_head;
 
 int send_message( char* message ) {
 
@@ -67,28 +81,41 @@ int send_message( char* message ) {
 
 }
 
+char* g_buffer = NULL;
+int available_data = 0;
+
+
 char* recv_message() {
 
-	SOCKET sock = g_sock;
+	/* Si le buffer de reception de message est indisponible, on cherche dans la pile TCP */
+	if ( available_data <= 1 ) {
 
-	if ( sock == INVALID_SOCKET ) {
-		return NULL;
+		SOCKET sock = g_sock;
+
+		if ( sock == INVALID_SOCKET ) {
+			return NULL;
+		}
+		
+		g_buffer = malloc( sizeof(char) * 2000 );
+
+		if ( ( available_data = recv(sock, g_buffer, 2000, 0)) < 0 )  {
+
+			printf("Receving error : receive message\n");
+
+			return NULL;
+
+		}
+
 	}
-	
-	char* buffer = malloc( sizeof(char) * 2000 );
-	int len = 0;
+
+	/*  Ce bloc peut se traduire par "Recupere UN message parmi les donnees presentes dans la file" */
+	char* message = strdup(g_buffer);
+	int consumed = strlen(message)+1;
+	available_data -= consumed;
+	g_buffer = (g_buffer + consumed);
+	/****/
 
 
-	if ( ( len = recv(sock, buffer, 2000, 0)) < 0 )  {
-
-		printf("Receving error : receive message\n");
-
-		return NULL;
-
-	}
-
-	char* message = strdup(buffer);
-			
 	return message;
 }
 
@@ -173,9 +200,11 @@ int connect_to_server( const char* server_name, int port ) {
 
 	g_sock = sock;
 
+
 	return 0;
 	
 }
+
 
 void exit_program( int code ) {
 
@@ -196,7 +225,7 @@ void onSigTerm( int sig ) {
 	struct sigaction act;
 
 #endif
-	
+
 void init_network() {
 
 	// pour envoyuer un paquet de deconnexion en cas de fermeture

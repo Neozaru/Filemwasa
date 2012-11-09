@@ -21,8 +21,8 @@ public class ClientAutomate : Automate {
 		s1.ajouter_transition( t12 );
 		s1.ajouter_transition( t10 );
 		s2.ajouter_transition( t23 );
+		s2.ajouter_transition( t20 );
 		s3.ajouter_transition( t32 );
-		s3.ajouter_transition( t20 );
 
 
 		this._etats.append( s0 );
@@ -32,22 +32,6 @@ public class ClientAutomate : Automate {
 
 
 		this.first_state();
-
-	}
-
-	/*** Specific functs ***/
-	public void begin( string[] cmd ) {
-
-		string msg = "begin";
-		send_message(msg);
-
-	}
-
-	public void data( string[] cmd ) {
-
-	}
-
-	public void end( string[] cmd ) {
 
 	}
 
@@ -65,10 +49,6 @@ public class ClientAutomate : Automate {
 		}
 
 	}
-
-
-
-	////*** Specific functs ***/
 
 	~ClientAutomate() {
 		
